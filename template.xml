@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2020-08-29T21:16:34Z</date>
+    <groups>
+        <group>
+            <name>Templates/Applications</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Template Web SSL Certificate Monitor</template>
+            <name>Template Web SSL Certificate Monitor</name>
+            <groups>
+                <group>
+                    <name>Templates/Applications</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>Certificates</name>
+                </application>
+            </applications>
+            <discovery_rules>
+                <discovery_rule>
+                    <name>Get URLs</name>
+                    <key>get.urls</key>
+                    <delay>1h</delay>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>{#URL}</name>
+                            <key>get.ssl[{#URL} {$EXPIRESWITHIN}]</key>
+                            <delay>{$UPDATEINTERVAL}</delay>
+                            <history>7d</history>
+                            <trends>7d</trends>
+                            <applications>
+                                <application>
+                                    <name>Certificates</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>CHECK_JSON_ERROR</type>
+                                    <params>$.error</params>
+                                </step>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$.expiresWithin</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>^true
+1</params>
+                                    <error_handler>CUSTOM_VALUE</error_handler>
+                                    <error_handler_params>0</error_handler_params>
+                                </step>
+                            </preprocessing>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last()}=1</expression>
+                                    <name>{#URL} expiration in {$EXPIRESWITHIN} day(s)</name>
+                                    <priority>WARNING</priority>
+                                    <description>Web SSL certificate is expiring soon.</description>
+                                    <manual_close>YES</manual_close>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                </discovery_rule>
+            </discovery_rules>
+            <macros>
+                <macro>
+                    <macro>{$EXPIRESWITHIN}</macro>
+                    <value>30</value>
+                    <description>Days to check before certificate expires. default 30 days check.</description>
+                </macro>
+                <macro>
+                    <macro>{$UPDATEINTERVAL}</macro>
+                    <value>1h</value>
+                    <description>How often to update the items</description>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+</zabbix_export>
