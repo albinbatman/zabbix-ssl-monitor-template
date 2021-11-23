@@ -35,12 +35,13 @@ class SSL
 
     private function validateCertificate($certificate, $expiresWithin)
     {
-        $expiresWithin = date('Y-m-d', strtotime($certificate->validFrom . "+ {$expiresWithin} day"));
-        if ($expiresWithin >= $certificate->validTo) {
+        $curDate = date ('Y-m-d');
+        $expiresWithin = date('Y-m-d', strtotime($curDate . "+ {$expiresWithin} day"));
+        
+        if ($expiresWithin >= $certificate->validTo) 
             return true;
-        } else {
-            return false;
-        }
+        
+        return false;
     }
 }
 
